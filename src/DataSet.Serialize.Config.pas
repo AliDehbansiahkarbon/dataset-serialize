@@ -5,6 +5,10 @@ unit DataSet.Serialize.Config;
 {$ENDIF}
 
 interface
+{$IF NOT DEFINED(FPC)}
+uses
+  System.Generics.Collections;
+{$ENDIF}
 
 type
   TCaseNameDefinition = (cndNone, cndLower, cndUpper, cndLowerCamelCase, cndUpperCamelCase);
@@ -69,6 +73,9 @@ type
     FRemoveBlankSpaceFieldName: Boolean;
     FExport: TDataSetSerializeConfigExport;
     FImport: TDataSetSerializeConfigImport;
+    {$IF NOT DEFINED(FPC)}
+    FOtherSupportedMemTables: TList<string>;
+    {$ENDIF}
     class var FInstance: TDataSetSerializeConfig;
   protected
     class function GetDefaultInstance: TDataSetSerializeConfig;
@@ -83,6 +90,9 @@ type
     property DateIsFloatingPoint: Boolean read FDateIsFloatingPoint write FDateIsFloatingPoint;
     property &Export: TDataSetSerializeConfigExport read FExport write FExport;
     property Import: TDataSetSerializeConfigImport read FImport write FImport;
+    {$IF NOT DEFINED(FPC)}
+    property OtherSupportedMemTables: TList<string> read FOtherSupportedMemTables;
+    {$ENDIF}
     class function GetInstance: TDataSetSerializeConfig;
     class procedure UnInitialize;
   end;
@@ -110,6 +120,10 @@ begin
     FreeAndNil(FExport);
   if Assigned(FImport) then
     FreeAndNil(FImport);
+  {$IF NOT DEFINED(FPC)}
+  if Assigned(FOtherSupportedMemTables) then
+    FOtherSupportedMemTables.Free;
+  {$ENDIF}
   inherited;
 end;
 
@@ -124,6 +138,11 @@ begin
     FInstance.RemoveBlankSpaceFieldName := True;
     FInstance.DateIsFloatingPoint := False;
     FInstance.DateTimeIsISO8601 := True;
+    {$IF NOT DEFINED(FPC)}
+    FInstance.FOtherSupportedMemTables := TList<string>.Create;
+    FInstance.FOtherSupportedMemTables.Add('TDXMEMDATA'); //DevExpress
+    FInstance.FOtherSupportedMemTables.Add('TCLIENTDATASET'); //TClientDataSet
+    {$ENDIF}
   end;
   Result := FInstance;
 end;

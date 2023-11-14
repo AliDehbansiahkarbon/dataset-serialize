@@ -10,7 +10,7 @@ uses
 {$IF DEFINED(FPC)}
   DB, fpjson, Generics.Collections,
 {$ELSE}
-  System.JSON, Data.DB, System.StrUtils, System.SysUtils, System.Rtti,
+  System.JSON, Data.DB, System.StrUtils, System.SysUtils, System.Rtti, {$IF NOT DEFINED(FPC)}Datasnap.DBClient,{$ENDIF}
   {$IF CompilerVersion >= 20}
     System.Character,
   {$ENDIF}
@@ -235,11 +235,26 @@ begin
   if not(ADataSet.Active) then
   begin
     {$IF NOT DEFINED(FPC)}
-    if not(ADataSet is TFDMemTable)  then
-      Exit;
+    if not(ADataSet is TFDMemTable) and
+      not TDataSetSerializeConfig.GetInstance.OtherSupportedMemTables.Contains(ADataSet.ClassName.ToUpper) then
+    Exit;
     {$ENDIF}
-    if ((ADataSet.FieldDefs.Count = 0) and (ADataSet.FieldCount = 0)) then
-      LoadFieldsFromJSON(ADataSet, AJSONObject);
+
+    if ADataSet.FieldDefs.Count = 0 then
+    begin
+      if ((ADataSet is TFDMemTable) and (ADataSet.FieldCount = 0))
+         {$IF NOT DEFINED(FPC)}
+           or TDataSetSerializeConfig.GetInstance.OtherSupportedMemTables.Contains(ADataSet.ClassName.ToUpper)
+         {$ENDIF}
+      then
+        LoadFieldsFromJSON(ADataSet, AJSONObject);
+    end;
+
+    {$IF NOT DEFINED(FPC)}
+    if ADataSet is TClientDataSet then
+      TClientDataSet(ADataSet).CreateDataSet;
+    {$ENDIF}
+
     ADataSet.Open;
   end;
 
@@ -330,6 +345,8 @@ begin
         if not Assigned(LJSONValue) then
           Continue;
         {$ELSE}
+
+//         LJSONValue := AJSONObject.GetValue(LField.FieldName);
         if not (AJSONObject.TryGetValue(TDataSetSerializeUtils.FormatCaseNameDefinition(LField.FieldName), LJSONValue) or (AJSONObject.TryGetValue(LField.FieldName, LJSONValue))) then
           Continue;
         {$ENDIF}
@@ -650,6 +667,7 @@ begin
   {$IF DEFINED(FPC)}
   for I := 0 to Pred(AJSONObject.Count) do
   {$ELSE}
+  ADataSet.FieldDefs.Clear;
   for LJSONPair in AJSONObject do
   {$ENDIF}
   begin
@@ -668,6 +686,8 @@ begin
       else
         LFieldDef.Size := MAX_SIZE_STRING;
     end;
+
+      LFieldDef.CreateField(ADataSet);
   end;
 end;
 

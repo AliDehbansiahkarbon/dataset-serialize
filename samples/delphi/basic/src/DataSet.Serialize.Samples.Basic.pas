@@ -5,7 +5,7 @@ interface
 uses Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics, System.JSON, Vcl.Controls,
   Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.StdCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
-  FireDAC.Comp.DataSet, FireDAC.Comp.Client, DataSet.Serialize;
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client, DataSet.Serialize, DataSet.Serialize.Config;
 
 type
   TFrmSamples = class(TForm)
@@ -164,6 +164,8 @@ procedure TFrmSamples.Button7Click(Sender: TObject);
 var
   LField: TField;
 begin
+  TDataSetSerializeConfig.GetInstance.CaseNameDefinition := cndUpperCamelCase;
+
   mtEmpty.LoadFromJSON(memoEmpty.Lines.Text);
   for LField in mtEmpty.Fields do
     mmDataType.Lines.Add(Format('Field: %s - %s', [LField.FieldName, GetEnumName(System.TypeInfo(TFieldType), Ord(LField.DataType))]));
