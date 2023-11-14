@@ -1,3 +1,10 @@
+
+# Forked version differences from the original version are: 
+- The original one is meant to support FDMemtable, this fork will support TClientDataset and TdxMemData(From DexExpress) too.
+- This fork supports field mapping, which means you can define field caption to appear in DB Grid instead of the original field name from JSON object.
+
+<hr>
+
 <a href="https://github.com/viniciussanchez/dataset-serialize/blob/master/img/dataset-serialize.png">
   <img alt="DataSet-Serialize" height="120" src="https://github.com/viniciussanchez/dataset-serialize/blob/master/img/dataset-serialize.png">
 </a>  
