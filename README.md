@@ -1,5 +1,5 @@
 
-# Forked version difference from the original version are: 
+# Forked version differences from the original version are: 
 - The original one is meant to support FDMemtable, this fork will support TClientDataset and TdxMemData(From DexExpress) too.
 
 <hr>
